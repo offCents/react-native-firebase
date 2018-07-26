@@ -3,7 +3,7 @@
 #import <Foundation/Foundation.h>
 
 #if __has_include(<GoogleMobileAds/GADMobileAds.h>)
-#import <Firebase.h>
+#import <Firebase/Firebase.h>
 #import "RNFirebaseEvents.h"
 #import <React/RCTBridgeModule.h>
 #import <React/RCTEventEmitter.h>
