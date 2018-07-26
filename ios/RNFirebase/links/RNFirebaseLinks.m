@@ -1,7 +1,7 @@
 #import "RNFirebaseLinks.h"
 
 #if __has_include(<FirebaseDynamicLinks/FirebaseDynamicLinks.h>)
-#import <Firebase.h>
+#import <Firebase/Firebase.h>
 #import "RNFirebaseEvents.h"
 #import "RNFirebaseUtil.h"
 
@@ -84,7 +84,7 @@ RCT_EXPORT_METHOD(createDynamicLink:(NSDictionary *)linkData
                   rejecter:(RCTPromiseRejectBlock)reject) {
     @try {
         FIRDynamicLinkComponents *dynamicLink = [self buildDynamicLink:linkData];
-        
+
         if (dynamicLink == nil) {
             reject(@"links/failure", @"Failed to create Dynamic Link", nil);
         } else {
@@ -182,14 +182,14 @@ RCT_EXPORT_METHOD(jsInitialised:(RCTPromiseResolveBlock)resolve rejecter:(RCTPro
     @try {
         NSURL *link = [NSURL URLWithString:linkData[@"link"]];
         FIRDynamicLinkComponents *components = [FIRDynamicLinkComponents componentsWithLink:link domain:linkData[@"dynamicLinkDomain"]];
-        
+
         [self setAnalyticsParameters:linkData[@"analytics"] components:components];
         [self setAndroidParameters:linkData[@"android"] components:components];
         [self setIosParameters:linkData[@"ios"] components:components];
         [self setITunesParameters:linkData[@"itunes"] components:components];
         [self setNavigationParameters:linkData[@"navigation"] components:components];
         [self setSocialParameters:linkData[@"social"] components:components];
-        
+
         return components;
     }
     @catch(NSException * e) {
@@ -201,7 +201,7 @@ RCT_EXPORT_METHOD(jsInitialised:(RCTPromiseResolveBlock)resolve rejecter:(RCTPro
 - (void)setAnalyticsParameters:(NSDictionary *)analyticsData
                     components:(FIRDynamicLinkComponents *)components {
     FIRDynamicLinkGoogleAnalyticsParameters *analyticsParams = [FIRDynamicLinkGoogleAnalyticsParameters parameters];
-    
+
     if (analyticsData[@"campaign"]) {
         analyticsParams.campaign = analyticsData[@"campaign"];
     }
@@ -224,7 +224,7 @@ RCT_EXPORT_METHOD(jsInitialised:(RCTPromiseResolveBlock)resolve rejecter:(RCTPro
                   components:(FIRDynamicLinkComponents *)components {
     if (androidData[@"packageName"]) {
         FIRDynamicLinkAndroidParameters *androidParams = [FIRDynamicLinkAndroidParameters parametersWithPackageName: androidData[@"packageName"]];
-        
+
         if (androidData[@"fallbackUrl"]) {
             androidParams.fallbackURL = [NSURL URLWithString:androidData[@"fallbackUrl"]];
         }
