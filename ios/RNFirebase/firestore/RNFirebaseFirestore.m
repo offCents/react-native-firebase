@@ -2,7 +2,7 @@
 
 #if __has_include(<FirebaseFirestore/FirebaseFirestore.h>)
 
-#import <Firebase.h>
+#import <Firebase/Firebase.h>
 #import "RNFirebaseEvents.h"
 #import "RNFirebaseFirestoreCollectionReference.h"
 #import "RNFirebaseFirestoreDocumentReference.h"
