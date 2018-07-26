@@ -6,7 +6,7 @@
 #import "RNFirebaseUtil.h"
 #import <MobileCoreServices/MobileCoreServices.h>
 #import <Photos/Photos.h>
-#import <Firebase.h>
+#import <Firebase/Firebase.h>
 #import <React/RCTUtils.h>
 
 @implementation RNFirebaseStorage
@@ -119,7 +119,7 @@ RCT_EXPORT_METHOD(downloadFile:(NSString *) appDisplayName
                       rejecter:(RCTPromiseRejectBlock) reject) {
     FIRStorageReference *fileRef = [self getReference:path appDisplayName:appDisplayName];
     NSURL *localFile = [NSURL fileURLWithPath:localPath];
-    
+
     __block FIRStorageDownloadTask *downloadTask;
     RCTUnsafeExecuteOnMainQueueSync(^{
         downloadTask = [fileRef writeToFile:localFile];
@@ -210,10 +210,10 @@ RCT_EXPORT_METHOD(putFile:(NSString *) appDisplayName
                  resolver:(RCTPromiseResolveBlock) resolve
                  rejecter:(RCTPromiseRejectBlock) reject) {
     FIRStorageMetadata *firmetadata = [self buildMetadataFromMap:metadata];
-    
+
     if ([localPath hasPrefix:@"assets-library://"] || [localPath hasPrefix:@"ph://"]) {
         PHFetchResult *assets;
-        
+
         if ([localPath hasPrefix:@"assets-library://"]) {
             NSURL *localFile = [[NSURL alloc] initWithString:localPath];
             assets = [PHAsset fetchAssetsWithALAssetURLs:@[localFile] options:nil];
@@ -221,9 +221,9 @@ RCT_EXPORT_METHOD(putFile:(NSString *) appDisplayName
             NSString *assetId = [localPath substringFromIndex:@"ph://".length];
             assets = [PHAsset fetchAssetsWithLocalIdentifiers:@[assetId] options:nil];
         }
-        
+
         PHAsset *asset = [assets firstObject];
-        
+
         // this is based on http://stackoverflow.com/questions/35241449
         if (asset.mediaType == PHAssetMediaTypeImage) {
             // images
@@ -263,13 +263,13 @@ RCT_EXPORT_METHOD(putFile:(NSString *) appDisplayName
                 if (info[PHImageErrorKey] == nil) {
                     NSURL *tempUrl = [self temporaryFileUrl];
                     exportSession.outputURL = tempUrl;
-                    
+
                     NSArray<PHAssetResource *> *resources = [PHAssetResource assetResourcesForAsset:asset];
                     for (PHAssetResource *resource in resources) {
                         exportSession.outputFileType = resource.uniformTypeIdentifier;
                         if (exportSession.outputFileType != nil) break;
                     }
-                    
+
                     [exportSession exportAsynchronouslyWithCompletionHandler:^{
                         if (exportSession.status == AVAssetExportSessionStatusCompleted) {
                             firmetadata.contentType = [self utiToMimeType:exportSession.outputFileType];
@@ -289,23 +289,23 @@ RCT_EXPORT_METHOD(putFile:(NSString *) appDisplayName
             reject(@"storage/file-not-found", @"File specified at path does not exist.", nil);
             return;
         }
-        
+
         // TODO large files should not go through 'data', should use file directly
         // TODO heic conversion not working here UIImageJPEGRepresentation -> returns nil
-        
+
         // BOOL isHeic = [self isHeic:localPath];
         NSData *data = [NSData dataWithContentsOfFile:localPath];
-        
+
         if ([firmetadata valueForKey:@"contentType"] == nil) {
             firmetadata.contentType = [self mimeTypeForPath:localPath];
         }
-        
+
         // if (isHeic) {
         //      UIImage *image = [UIImage imageWithData: data];
         //      data = UIImageJPEGRepresentation(image, 1);
         //      firmetadata.contentType = @"image/jpeg";
         // }
-        
+
         [self uploadData:appDisplayName data:data firmetadata:firmetadata path:path resolver:resolve rejecter:reject];
     }
 }
@@ -327,11 +327,11 @@ RCT_EXPORT_METHOD(putFile:(NSString *) appDisplayName
     CFStringRef UTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)[path pathExtension], NULL);
     CFStringRef mimeType = UTTypeCopyPreferredTagWithClass (UTI, kUTTagClassMIMEType);
     CFRelease(UTI);
-    
+
     if (!mimeType) {
         return @"application/octet-stream";
     }
-    
+
     return (__bridge_transfer NSString *) mimeType;
 }
 
